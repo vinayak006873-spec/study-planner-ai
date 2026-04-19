@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Study Plan | Study Planner</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --accent:  #06b6d4;
+      --dark-bg: #0f0f1a;
+      --card-bg: #1a1a2e;
+      --border:  #2d2d4e;
+    }
+    body {
+      background: var(--dark-bg);
+      color: #e2e2f0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    .navbar-custom {
+      background: rgba(15,15,26,0.95);
+      border-bottom: 1px solid var(--border);
+    }
+    /* ── Hero ── */
+    .result-hero {
+      background: linear-gradient(135deg, #0f3460, #16213e, #1a1a2e);
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 0;
+    }
+    .result-hero h1 {
+      font-size: 2rem; font-weight: 800;
+      background: linear-gradient(90deg, #a5b4fc, #67e8f9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    /* ── Stat Pills ── */
+    .stat-pill {
+      background: rgba(79,70,229,0.15);
+      border: 1px solid rgba(79,70,229,0.3);
+      border-radius: 50px;
+      padding: 0.4rem 1.1rem;
+      font-size: 0.875rem;
+    }
+    /* ── Table ── */
+    .plan-table {
+      background: var(--card-bg);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .plan-table thead th {
+      background: #12122b;
+      color: var(--accent);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-color: var(--border);
+      padding: 1rem;
+      font-weight: 600;
+    }
+    .plan-table tbody tr {
+      border-color: var(--border);
+      transition: background 0.15s;
+    }
+    .plan-table tbody tr:hover { background: rgba(79,70,229,0.08); }
+    .plan-table tbody td {
+      padding: 1rem;
+      border-color: var(--border);
+      vertical-align: middle;
+      color: #e2e2f0;
+    }
+    /* ── Progress Bar for Hours ── */
+    .hours-bar {
+      height: 6px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.1);
+      margin-top: 4px;
+    }
+    .hours-fill {
+      height: 100%;
+      border-radius: 99px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+    }
+    /* ── Weakness Badge ── */
+    .weakness-badge {
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.3rem 0.7rem;
+      border-radius: 6px;
+    }
+    .w-critical { background: rgba(239,68,68,0.2);  color: #fca5a5; }
+    .w-high     { background: rgba(249,115,22,0.2); color: #fdba74; }
+    .w-medium   { background: rgba(234,179,8,0.2);  color: #fde047; }
+    .w-low      { background: rgba(34,197,94,0.2);  color: #86efac; }
+    /* ── Summary Card ── */
+    .summary-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+    }
+    .summary-label { font-size: 0.75rem; color: #8b8baf; text-transform: uppercase; letter-spacing: 0.08em; }
+    .summary-value { font-size: 1.75rem; font-weight: 800; }
+    /* ── Buttons ── */
+    .btn-back {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: #e2e2f0;
+      border-radius: 8px;
+    }
+    .btn-back:hover { border-color: var(--primary); color: #a5b4fc; }
+    .btn-history {
+      background: rgba(6,182,212,0.15);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      border-radius: 8px;
+    }
+    .btn-history:hover { background: rgba(6,182,212,0.25); color: var(--accent); }
+    /* Print */
+    @media print {
+      nav, .no-print { display: none !important; }
+      body { background: #fff; color: #000; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Nav ── -->
+  <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-white" href="/">
+        <i class="bi bi-lightning-charge-fill text-warning me-2"></i>StudyPlanner AI
+      </a>
+      <a href="/history" class="ms-auto" style="color:#8b8baf;text-decoration:none;">
+        <i class="bi bi-clock-history me-1"></i> Past Plans
+      </a>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <div class="result-hero text-center">
+    <div class="container">
+      <div class="mb-2">
+        <span class="badge bg-success me-2"><i class="bi bi-check-circle me-1"></i>Plan Generated!</span>
+        <span class="badge" style="background:rgba(79,70,229,0.3);color:#a5b4fc;">Saved to History</span>
+      </div>
+      <h1><i class="bi bi-calendar-week me-2"></i>Your Weekly Study Plan</h1>
+      <div class="d-flex justify-content-center gap-2 flex-wrap mt-2">
+        <span class="stat-pill">🎯 Target CGPA: <strong>{{ target_cgpa }}</strong></span>
+        <span class="stat-pill">📚 Subjects: <strong>{{ num_subjects }}</strong></span>
+        <span class="stat-pill">⏱ Total: <strong>12 hrs/week</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container py-4" style="max-width: 900px;">
+
+    <!-- ── Summary Cards ── -->
+    <div class="row g-3 mb-4">
+      {% set max_subject = timetable | max(attribute='hours') %}
+      {% set min_subject = timetable | min(attribute='hours') %}
+      <div class="col-md-4">
+        <div class="summary-card text-center">
+          <div class="summary-label">Focus Subject</div>
+          <div class="summary-value text-warning" style="font-size:1.1rem;margin-top:0.3rem;">
+            {{ max_subject.subject }}
+          </div>
+          <div style="color:#8b8baf;font-size:0.85rem;">{{ max_subject.hours }} hrs/week</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="summary-card text-center">
+          <div class="summary-label">Strongest Subject</div>
+          <div class="summary-value text-success" style="font-size:1.1rem;margin-top:0.3rem;">
+            {{ min_subject.subject }}
+          </div>
+          <div style="color:#8b8baf;font-size:0.85rem;">{{ min_subject.hours }} hrs/week</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="summary-card text-center">
+          <div class="summary-label">Total Weekly Hours</div>
+          <div class="summary-value" style="background:linear-gradient(90deg,#a5b4fc,#67e8f9);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">12</div>
+          <div style="color:#8b8baf;font-size:0.85rem;">~1.7 hrs/day</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Main Timetable ── -->
+    <div class="plan-table mb-4">
+      <table class="table table-borderless mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Subject</th>
+            <th>Mid-Sem Score</th>
+            <th>Credits</th>
+            <th>Weakness</th>
+            <th>Hours / Week</th>
+            <th>Priority</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in timetable %}
+          <tr>
+            <td style="color:#8b8baf;">{{ loop.index }}</td>
+            <td><strong>{{ row.subject }}</strong></td>
+            <td>
+              <span style="font-variant-numeric: tabular-nums;">{{ row.mid_score }} / 20</span>
+            </td>
+            <td>{{ row.credits }}</td>
+            <td>
+              {% if row.weakness >= 70 %}
+                <span class="weakness-badge w-critical">{{ row.weakness }}%</span>
+              {% elif row.weakness >= 45 %}
+                <span class="weakness-badge w-high">{{ row.weakness }}%</span>
+              {% elif row.weakness >= 25 %}
+                <span class="weakness-badge w-medium">{{ row.weakness }}%</span>
+              {% else %}
+                <span class="weakness-badge w-low">{{ row.weakness }}%</span>
+              {% endif %}
+            </td>
+            <td>
+              <strong style="font-size:1.05rem;">{{ row.hours }} hrs</strong>
+              <div class="hours-bar">
+                <div class="hours-fill" style="width: {{ (row.hours / 12 * 100) | round }}%"></div>
+              </div>
+            </td>
+            <td>{{ row.priority }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── How it was calculated ── -->
+    <div class="summary-card mb-4" style="background:#12122b;">
+      <div class="d-flex align-items-center mb-2">
+        <i class="bi bi-info-circle-fill text-info me-2"></i>
+        <strong>How Hours Were Calculated</strong>
+      </div>
+      <p style="color:#8b8baf;font-size:0.9rem;margin-bottom:0;">
+        Each subject's <strong style="color:#c4c4e0;">weakness factor</strong> = <code>1 − (mid_score / 20)</code>.
+        This is multiplied by the subject's <strong style="color:#c4c4e0;">credit weight</strong> to form a
+        weighted score. Hours are then distributed <strong style="color:#c4c4e0;">proportionally</strong> across
+        the total 12 hrs/week, with a minimum of 0.5 hrs guaranteed per subject.
+        Subjects with higher credits <em>and</em> lower scores get the most time.
+      </p>
+    </div>
+
+    <!-- ── Actions ── -->
+    <div class="d-flex gap-2 flex-wrap no-print">
+      <a href="/" class="btn btn-back"><i class="bi bi-arrow-left me-1"></i> New Plan</a>
+      <a href="/history" class="btn btn-history"><i class="bi bi-clock-history me-1"></i> View History</a>
+      <button onclick="window.print()" class="btn btn-back ms-auto">
+        <i class="bi bi-printer me-1"></i> Print / Save PDF
+      </button>
+    </div>
+
+  </div><!-- /container -->
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
